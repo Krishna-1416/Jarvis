@@ -11,6 +11,14 @@ llm:
   ollama_base_url: "http://localhost:11434"
   timeout_seconds: 45
 
+  # --- Optional Cloud API Fallback (Discarded / Commented Out for Pure Local Mode) ---
+  # cloud_fallback:
+  #   enabled: false
+  #   provider: "openai"              # "openai" | "anthropic" | "gemini"
+  #   api_key_env: "OPENAI_API_KEY"
+  #   model: "gpt-4o-mini"
+
+
 voice:
   stt:
     model_size: "base.en"           # "base.en" (fast, lightweight) or "small.en"

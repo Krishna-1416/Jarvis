@@ -1,7 +1,7 @@
 """
-Local Brain Router for Project Jarvis.
-Orchestrates reasoning via local Ollama (qwen2.5 / qwen3.5), deterministic high-speed intent routing,
-and dynamic local tool execution loops (100% offline & private).
+Hybrid Brain Router for Project Jarvis.
+Orchestrates reasoning via local Ollama (qwen2.5:1.5b), deterministic high-speed intent routing,
+and dynamic tool execution loops with automatic Cloud API fallback support.
 """
 
 import os
@@ -10,6 +10,7 @@ import json
 import time
 from typing import Optional, List, Dict, Any, Tuple
 import ollama
+from openai import OpenAI
 
 from core.config import config
 from core.context_manager import ContextManager
@@ -20,10 +21,26 @@ from tools.browser_ops import play_on_youtube, play_on_spotify, open_website, se
 class BrainRouter:
     def __init__(self, context_manager: Optional[ContextManager] = None):
         self.context_manager = context_manager or ContextManager()
-        self.local_model = config.settings.get("llm", {}).get("local_model", "qwen2.5:1.5b")
-        self.fallback_model = config.settings.get("llm", {}).get("fallback_model", "qwen3.5:4b")
+        self.local_model = config.settings.get("llm", {}).get("local_model", "qwen3.5:4b")
+        self.fallback_model = config.settings.get("llm", {}).get("fallback_model", "qwen2.5:1.5b")
         self.ollama_url = config.ollama_url
         self.ollama_client = ollama.Client(host=self.ollama_url)
+        
+        # --- Cloud API Configuration (Discarded in favor of 100% Local Offline Operation) ---
+        # self.cloud_enabled = config.settings.get("llm", {}).get("cloud_fallback", {}).get("enabled", False)
+        # self.cloud_provider = config.settings.get("llm", {}).get("cloud_fallback", {}).get("provider", "openai")
+        # self.cloud_model = config.settings.get("llm", {}).get("cloud_fallback", {}).get("model", "gpt-4o-mini")
+        # self.cloud_api_key = os.getenv("OPENAI_API_KEY", "")
+
+    # def _should_escalate_to_cloud(self, user_text: str) -> bool:
+    #     """[COMMENTED OUT] Cloud escalation disabled - Jarvis runs 100% locally."""
+    #     if not getattr(self, "cloud_enabled", False) or not getattr(self, "cloud_api_key", ""):
+    #         return False
+    #     lower = user_text.lower()
+    #     if "use cloud" in lower or "deep reasoning" in lower or "complex analysis" in lower:
+    #         return True
+    #     return False
+
 
     def _try_deterministic_intent(self, user_query: str) -> Optional[str]:
         """
@@ -263,17 +280,26 @@ class BrainRouter:
         # Append user message to context manager
         self.context_manager.add_user_message(user_query)
 
-        # 1. Check deterministic fast-path (0ms latency, 100% precision)
+        # 1. Check deterministic fast-path
         fast_reply = self._try_deterministic_intent(user_query)
         if fast_reply:
             self.context_manager.add_assistant_message(content=fast_reply)
             return fast_reply
 
-        # 2. Run Local Ollama reasoning loop (100% local)
+        # 2. [COMMENTED OUT] Cloud escalation disabled for pure local operation
+        # if self._should_escalate_to_cloud(user_query):
+        #     print("[Brain] 🌐 Escalating query to Cloud Model...")
+        #     return self._chat_cloud()
+
+        # 3. Run Local Ollama reasoning loop
         try:
             return self._chat_local(extra_memory_facts)
         except Exception as e:
             print(f"[Brain] ⚠️ Local Ollama inference error: {e}")
+            # --- Cloud Fallback (Commented Out for Pure Local Mode) ---
+            # if getattr(self, "cloud_enabled", False) and getattr(self, "cloud_api_key", ""):
+            #     print("[Brain] 🌐 Falling back to Cloud API...")
+            #     return self._chat_cloud()
             return f"I encountered an issue contacting my local brain at {self.ollama_url}. Please ensure Ollama is running, sir."
 
     def _chat_local(self, extra_memory_facts: Optional[str] = None) -> str:
@@ -334,4 +360,33 @@ class BrainRouter:
         if last_error:
             raise last_error
         return "I was unable to process the query, sir."
+
+    # def _chat_cloud(self) -> str:
+    #     """[COMMENTED OUT] Cloud API chat fallback via OpenAI SDK."""
+    #     try:
+    #         client = OpenAI(api_key=getattr(self, "cloud_api_key", ""))
+    #         messages = self.context_manager.get_compiled_messages()
+    #         tools_schemas = registry.get_all_schemas()
+    #         
+    #         response = client.chat.completions.create(
+    #             model=getattr(self, "cloud_model", "gpt-4o-mini"),
+    #             messages=messages,
+    #             tools=tools_schemas,
+    #             temperature=0.3
+    #         )
+    #         
+    #         choice = response.choices[0].message
+    #         content = choice.content or ""
+    #         
+    #         if choice.tool_calls:
+    #             for t in choice.tool_calls:
+    #                 fn_name = t.function.name
+    #                 args = json.loads(t.function.arguments) if t.function.arguments else {}
+    #                 registry.execute_tool_call(fn_name, args)
+    #             return content or "I executed the requested action via Cloud Reasoning, sir."
+    #             
+    #         self.context_manager.add_assistant_message(content=content)
+    #         return content
+    #     except Exception as e:
+    #         return f"Cloud API error: {e}"
 
