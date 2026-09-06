@@ -59,10 +59,8 @@ run_jarvis.bat
 ```
 Jarvis/
 ├── docs/                                # 📚 Centralized Technical Documentation
-│   ├── architecture/                    # System design, PRDs, and engine workflows
-│   │   ├── PRD.md                       # Product Requirements & Hardware Specs
-│   │   ├── WORKFLOW.md                  # Async pipeline & event loops
-│   │   └── WALKTHROUGH.md               # Visual guides & feature walkthroughs
+│   ├── architecture/                    # System design, async pipelines & event loops
+│   │   └── architecture.md              # Core engine architecture & pipeline specifications
 │   └── setup/                           # Step-by-step setup and integration guides
 │       ├── INSTALL.md                   # Environment setup & dependency installation
 │       └── GMAIL_SETUP.md               # Google OAuth2 Cloud Console walkthrough
