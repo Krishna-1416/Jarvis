@@ -7,13 +7,9 @@ assistant:
 llm:
   provider: "ollama"
   local_model: "qwen2.5:1.5b"
+  fallback_model: "qwen3.5:4b"
   ollama_base_url: "http://localhost:11434"
   timeout_seconds: 45
-  cloud_fallback:
-    enabled: true
-    provider: "openai"              # "openai" | "anthropic" | "gemini"
-    api_key_env: "OPENAI_API_KEY"
-    model: "gpt-4o-mini"
 
 voice:
   stt:
