@@ -1,0 +1,32 @@
+safety:
+  require_confirmation_for_destructive: true
+  destructive_patterns:
+    - "rmdir /s"
+    - "del /f /s /q"
+    - "Format-"
+    - "Remove-Item -Recurse"
+    - "Stop-Computer"
+    - "Restart-Computer"
+    - "reg delete"
+  timeout_seconds: 30
+
+allowed_applications:
+  - name: "Spotify"
+    exe: "spotify.exe"
+    uri: "spotify:"
+  - name: "Chrome"
+    exe: "chrome.exe"
+  - name: "VSCode"
+    exe: "code"
+  - name: "Notepad"
+    exe: "notepad.exe"
+  - name: "Calculator"
+    exe: "calc.exe"
+  - name: "Terminal"
+    exe: "wt.exe"
+  - name: "File Explorer"
+    exe: "explorer.exe"
+
+web_search:
+  provider: "duckduckgo"
+  max_results: 5

@@ -1,0 +1,52 @@
+assistant:
+  name: "Jarvis"
+  summon_hotkey: "<ctrl>+<shift>+j"
+  push_to_talk_hotkey: "<ctrl>+<space>"
+  wake_word: "jarvis"
+
+llm:
+  provider: "ollama"
+  local_model: "qwen2.5:1.5b"
+  ollama_base_url: "http://localhost:11434"
+  timeout_seconds: 45
+  cloud_fallback:
+    enabled: true
+    provider: "openai"              # "openai" | "anthropic" | "gemini"
+    api_key_env: "OPENAI_API_KEY"
+    model: "gpt-4o-mini"
+
+voice:
+  stt:
+    model_size: "base.en"           # "base.en" (fast, lightweight) or "small.en"
+    device: "cpu"                   # "cpu" (ultra reliable, <120ms latency)
+    compute_type: "int8"
+    language: "en"
+  tts:
+    engine: "sapi5"                 # Windows Native SAPI5 (0ms Instant Latency)
+    rate: 195                       # Speech speed rate (words per minute)
+    volume: 1.0                     # Audio volume (0.0 to 1.0)
+  vad:
+    threshold: 0.042
+    silence_duration_ms: 500
+    sample_rate: 16000
+
+memory:
+  db_path: "data/jarvis_memory.db"
+  embedding_model: "all-MiniLM-L6-v2"
+  device: "cpu"
+  max_context_turns: 6
+
+paths:
+  models_dir: "models"
+  data_dir: "data"
+
+email:
+  enabled: true
+  polling_interval_minutes: 10
+  credentials_path: "data/credentials/credentials.json"
+  token_path: "data/credentials/token.json"
+  startup_briefing: true
+  max_unread_fetch: 15
+  priority_senders: []
+
+

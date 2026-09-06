@@ -1,0 +1,182 @@
+{
+  "C:\\Users\\Krishna\\Jarvis\\main.py": {
+    "mtime": 1787740581.1916962,
+    "hash": "7c74339603e9f2aee339962313058c5e"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\audio\\recorder.py": {
+    "mtime": 1787742751.4193888,
+    "hash": "0dbadc3bf1c861c70f5bcac02e404c5f"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\audio\\sound_effects.py": {
+    "mtime": 1787738992.1329827,
+    "hash": "3fa1f6fb7c48b4d63ac02f3fc8bec819"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\audio\\stt.py": {
+    "mtime": 1787742745.2522595,
+    "hash": "2c577f4b1874a144980e5a17e223ba41"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\audio\\tts.py": {
+    "mtime": 1787743016.4840007,
+    "hash": "f5089f517ec30cf0cec6e3dba6d1c48f"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\audio\\__init__.py": {
+    "mtime": 1787738985.2942283,
+    "hash": "9f832188c25231c315c37ceb59271673"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\core\\config.py": {
+    "mtime": 1787740943.3001344,
+    "hash": "c403a3b94769252c986839e337ad8334"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\core\\context_manager.py": {
+    "mtime": 1787743248.9161043,
+    "hash": "9836d11b9253716c43a955c35b2cdc7a"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\core\\engine.py": {
+    "mtime": 1787742908.5819554,
+    "hash": "334109d33a54e062bd9d02119d0714c4"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\core\\router.py": {
+    "mtime": 1787743281.1623406,
+    "hash": "eb7fd7970b7cba2c3b48e931f52114d0"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\memory\\db.py": {
+    "mtime": 1787740050.0099573,
+    "hash": "8ad4440736acf0390814a64a5919d683"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\memory\\memory_manager.py": {
+    "mtime": 1787740063.9196656,
+    "hash": "2629034528beb05c2287fefec84759fa"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\memory\\vector_store.py": {
+    "mtime": 1787740101.520538,
+    "hash": "1c1ba2d018d53e25195cf18833a8c531"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\memory\\__init__.py": {
+    "mtime": 1787740042.5551016,
+    "hash": "1a27d42eb3a92714e6250fcabe9ee3a8"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\scripts\\download_models.py": {
+    "mtime": 1787739114.4625502,
+    "hash": "00024dfe173e5d113390da86ac6dce48"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_audio_input.py": {
+    "mtime": 1787742790.6617982,
+    "hash": "2efdcdde7cbfd7b781fb59a53ae95931"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_audio_loop.py": {
+    "mtime": 1787739045.4011347,
+    "hash": "3d13695e2586527e8b1f2edcae74d6d8"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_llm.py": {
+    "mtime": 1787739954.3910198,
+    "hash": "7a67bb2819e94d4e8ea76d022b411faa"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_memory.py": {
+    "mtime": 1787740088.0414944,
+    "hash": "41835a67ed4a65cc315911be5edd1f1b"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_stt.py": {
+    "mtime": 1787742669.9124317,
+    "hash": "0b313bd9a8e700bca6609d2abf2cb8c5"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_tools.py": {
+    "mtime": 1787739910.1484516,
+    "hash": "a62a979a6ba40686e83aaec8c43b5d50"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_tts.py": {
+    "mtime": 1787742025.940534,
+    "hash": "29cf21ec1f9a1c7170694f030578c313"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tests\\test_ui.py": {
+    "mtime": 1787740208.8905227,
+    "hash": "0664390c30f758b6bb2febbbf59c9e0b"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\browser_ops.py": {
+    "mtime": 1787743168.1676016,
+    "hash": "41d018fa161915e85bcefcb4e4708a58"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\file_ops.py": {
+    "mtime": 1787739799.8669415,
+    "hash": "60abb3acc5a5d0f2d157fbb591df96b0"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\media_control.py": {
+    "mtime": 1787739815.1880238,
+    "hash": "bd1f488c7dc4fd2ec3d79499cdf13eac"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\powershell_runner.py": {
+    "mtime": 1787739941.8753316,
+    "hash": "e96de235f0a7018000fd848dfc768834"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\registry.py": {
+    "mtime": 1787743311.5445933,
+    "hash": "8559cdabebe5ed596733b06f12afaf50"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\system_ops.py": {
+    "mtime": 1787739935.9972217,
+    "hash": "bc00477e7c49820cab5ae23da5b82239"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\web_search.py": {
+    "mtime": 1787739788.043692,
+    "hash": "7bf033f6030f5d9d6d77c2303f383d78"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\tools\\__init__.py": {
+    "mtime": 1787743173.5425248,
+    "hash": "8896780fc9aa84f5736af4379c7b5bc7"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\ui\\app.py": {
+    "mtime": 1787740198.229571,
+    "hash": "907ead995e3d06f1b41d28044df70890"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\ui\\audio_visualizer.py": {
+    "mtime": 1787740166.644619,
+    "hash": "88d43a15326abba86bcdd8636996864b"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\ui\\hotkey_listener.py": {
+    "mtime": 1787740150.447165,
+    "hash": "3d98599cf853e562b625837cbf4b766b"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\ui\\hud_window.py": {
+    "mtime": 1787740180.0859392,
+    "hash": "97c532f390e9d6130607ad96966e3a32"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\ui\\tray.py": {
+    "mtime": 1787740188.8327146,
+    "hash": "54315a5f6fa94f53be72a97974b20f02"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\ui\\__init__.py": {
+    "mtime": 1787740143.5947516,
+    "hash": "4ea5fab9718f62114ea7617e4aab67fb"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\implementation_plan.md": {
+    "mtime": 1787734079.43656,
+    "hash": "6c0580d1b81512f9227170a2e3a07986"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\INSTALL.md": {
+    "mtime": 1787740976.9129143,
+    "hash": "96d78dab50e85c3f5267cb75f64ae84a"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\PRD.md": {
+    "mtime": 1787740956.4073577,
+    "hash": "3ffe20501f88eba9fe9f7148c1032100"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\requirements.txt": {
+    "mtime": 1787735017.7931068,
+    "hash": "c68ba1af505751a9b2a821e7d7c7ae81"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\WALKTHROUGH.md": {
+    "mtime": 1787740983.105785,
+    "hash": "644cbc112eebbaa452f5e195681b7a13"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\WORKFLOW.md": {
+    "mtime": 1787740965.6542335,
+    "hash": "c7bffe4269d2b77de9f52f0addc6ea7c"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\config\\settings.yaml": {
+    "mtime": 1787743262.2981505,
+    "hash": "311e4d2998bb0dca75530a27944ea90a"
+  },
+  "C:\\Users\\Krishna\\Jarvis\\config\\tools_config.yaml": {
+    "mtime": 1787738952.1613941,
+    "hash": "9f472f616af0335d41a03f1fda6bd5e2"
+  }
+}

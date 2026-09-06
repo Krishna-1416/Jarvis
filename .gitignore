@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Google OAuth & Gmail Credentials (CRITICAL)
+data/credentials/*.json
+data/credentials/token.json
+data/credentials/credentials.json
+client_secret*.json
+token.json
+credentials.json
+*.pem
+*.key
+
+# Vector Store / Episodic Memory DBs / Local Cache
+data/memory/*.db
+data/memory/*.sqlite
+data/vectors/
+*.log
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+Desktop.ini
+.DS_Store
