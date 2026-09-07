@@ -4,149 +4,319 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service — Jarvis</title>
+    <meta name="description" content="Terms of Service, MIT license terms, command execution disclaimers, and user autonomy policies for Project Jarvis.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-void: #000000;
             --bg-surface: rgba(255, 255, 255, 0.03);
+            --bg-surface-hover: rgba(255, 255, 255, 0.05);
             --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(255, 255, 255, 0.15);
+            --border-glow: rgba(0, 240, 255, 0.25);
+            --cyan: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.12);
+            --emerald: #00ffaa;
             --text-main: #ffffff;
             --text-muted: #888888;
             --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background-color: var(--bg-void);
             color: var(--text-main);
             font-family: var(--font-sans);
-            line-height: 1.7;
-            padding: 60px 24px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
             overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.65;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            selection-background: var(--text-main);
-            selection-color: var(--bg-void);
+            selection-background: var(--cyan);
+            selection-color: #000;
         }
 
-        ::selection { background: var(--text-main); color: var(--bg-void); }
+        ::selection {
+            background: var(--cyan);
+            color: #000;
+        }
 
-        /* Spotlight Background */
+        /* Ambient Spotlight Background */
         .spotlight-container {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 0;
             overflow: hidden;
             pointer-events: none;
-            background: #000000;
         }
 
         .spotlight {
             position: absolute;
-            width: 80vw;
-            height: 80vh;
-            top: -20vh;
-            left: 10vw;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.04), rgba(138, 43, 226, 0.03), transparent 60%);
-            filter: blur(80px);
+            width: 85vw;
+            height: 85vh;
+            top: -25vh;
+            left: 7.5vw;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05), rgba(138, 43, 226, 0.03), transparent 60%);
+            filter: blur(90px);
             opacity: 0.8;
             border-radius: 50%;
+            animation: breathe 12s ease-in-out infinite alternate;
         }
 
-        .container {
+        @keyframes breathe {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        /* Fixed Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 24px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-core {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+            animation: pulse-core 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-core {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.4); opacity: 1; }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            border-bottom: 1px solid var(--cyan);
+            padding-bottom: 2px;
+        }
+
+        /* Header */
+        .header {
             position: relative;
             z-index: 1;
-            max-width: 800px;
-            width: 100%;
-            animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
+            padding: 140px 24px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
         }
 
-        @keyframes revealUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .badge {
-            display: inline-block;
-            color: var(--text-muted);
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-subtle);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
             font-family: var(--font-mono);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            color: var(--text-muted);
             margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            box-shadow: 0 0 8px var(--emerald);
         }
 
         h1 {
-            font-size: clamp(3rem, 5vw, 4.5rem);
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            letter-spacing: -2.5px;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .header-desc {
+            font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto 16px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .revision-meta {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Container */
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto 120px;
+            padding: 0 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* Terms Section Card */
+        .terms-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 28px;
+            padding: 40px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: border-color 0.3s ease;
+        }
+
+        .terms-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -2px;
-            line-height: 1;
+            letter-spacing: -0.5px;
             margin-bottom: 16px;
             color: var(--text-main);
         }
 
-        .updated {
+        .card-text {
             color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 56px;
-            padding-bottom: 32px;
-            border-bottom: 1px solid var(--border-subtle);
+            font-size: 1.02rem;
+            line-height: 1.7;
         }
 
-        h2 {
-            font-size: 1.5rem;
-            color: var(--text-main);
-            margin-top: 56px;
-            margin-bottom: 24px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
+        code {
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0f0ff;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        p, li {
-            color: #a0a0a0;
-            font-size: 1.05rem;
-            margin-bottom: 20px;
-        }
-
-        ul { margin-left: 24px; margin-bottom: 24px; }
-        li { margin-bottom: 12px; }
 
         a {
-            color: var(--text-main);
+            color: var(--cyan);
             text-decoration: none;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
             padding-bottom: 1px;
             transition: all 0.3s ease;
         }
 
-        a:hover { border-color: rgba(255,255,255,1); }
+        a:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+            text-shadow: 0 0 10px var(--cyan);
+        }
 
-        .footer {
-            margin-top: 80px;
-            padding-top: 40px;
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 60px 48px;
             border-top: 1px solid var(--border-subtle);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.95rem;
         }
-        
-        .footer a {
+
+        .footer-logo {
+            font-weight: 600;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            font-weight: 500;
-            border: none;
         }
-        
-        .footer a:hover { color: var(--text-main); }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-main);
+            text-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 20px 24px; }
+            .nav-links { display: none; }
+            .header { padding: 120px 24px 40px; }
+            .content { padding: 0 20px; gap: 32px; }
+            .terms-card { padding: 32px 24px; }
+            footer { flex-direction: column; gap: 24px; text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -154,28 +324,88 @@
         <div class="spotlight"></div>
     </div>
 
-    <div class="container">
-        <div class="badge">Open Source Agreement</div>
-        <h1>Terms of Service</h1>
-        <div class="updated">Last revised: September 7, 2026 &bull; Jarvis</div>
-
-        <h2>1. Acceptance of Terms</h2>
-        <p>By downloading, cloning, installing, or executing Jarvis ("the application"), you agree to abide by these Terms of Service. If you do not accept these terms, you should discontinue using the software.</p>
-
-        <h2>2. Open Source License (MIT)</h2>
-        <p>Jarvis is released under the terms of the <strong>MIT License</strong>. You are granted permission to inspect, modify, merge, publish, distribute, sublicense, and run copies of the software freely in accordance with the MIT License terms.</p>
-
-        <h2>3. Disclaimer of Warranties</h2>
-        <p>The application is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability arising from the use of the software.</p>
-
-        <h2>4. User Autonomy &amp; Command Execution</h2>
-        <p>Because Jarvis executes operating system commands (such as volume adjustments, process termination, file operations, and optional email drafting) based on voice or keyboard instructions, you acknowledge that you are responsible for monitoring and supervising any system actions executed on your personal computer.</p>
-
-        <div class="footer">
-            <a href="index.html">← Overview</a>
-            <a href="architecture/architecture.html">Architecture</a>
-            <a href="privacy.html">Privacy Policy →</a>
+    <!-- Fixed Minimal Navigation -->
+    <nav>
+        <a href="index.html" class="logo">
+            <div class="logo-core"></div>
+            <span>JARVIS // TERMS</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="architecture/architecture.html" class="nav-link">Architecture</a>
+            <a href="privacy.html" class="nav-link">Privacy</a>
+            <a href="terms.html" class="nav-link active">Terms</a>
+            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank" class="nav-link">GitHub</a>
         </div>
-    </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>MIT LICENSE &bull; OPEN SOURCE GOVERNANCE &bull; USER SOVEREIGNTY</span>
+        </div>
+        <h1>Terms of Service</h1>
+        <p class="header-desc">
+            Rules, user responsibilities, open-source licensing terms, and command execution disclaimers governing the use of Project Jarvis.
+        </p>
+        <div class="revision-meta">LAST REVISED: SEPTEMBER 7, 2026 &bull; VERSION 1.0</div>
+    </header>
+
+    <main class="content">
+
+        <section class="terms-card">
+            <div class="card-tag">TERM 01 / AGREEMENT</div>
+            <h2 class="card-title">1. Acceptance of Terms</h2>
+            <p class="card-text">
+                By cloning, building, running, or interacting with Project Jarvis ("the application"), you agree to abide by these Terms of Service. If you disagree with any portion of these terms, you should terminate use and uninstall the application.
+            </p>
+        </section>
+
+        <section class="terms-card">
+            <div class="card-tag">TERM 02 / OPEN SOURCE LICENSE</div>
+            <h2 class="card-title">2. MIT License Permission &amp; Usage</h2>
+            <p class="card-text">
+                Project Jarvis is free and open-source software distributed under the terms of the <strong>MIT License</strong>. You are granted permission, free of charge, to use, copy, modify, merge, publish, distribute, sublicense, and run copies of the software, subject to the conditions stated in the LICENSE file.
+            </p>
+        </section>
+
+        <section class="terms-card">
+            <div class="card-tag">TERM 03 / LIABILITY DISCLAIMER</div>
+            <h2 class="card-title">3. Disclaimer of Warranties</h2>
+            <p class="card-text">
+                The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors, creators, or copyright holders be liable for any claim, damages, or other liability arising from the use of the software.
+            </p>
+        </section>
+
+        <section class="terms-card">
+            <div class="card-tag">TERM 04 / SYSTEM COMMAND EXECUTION</div>
+            <h2 class="card-title">4. User Autonomy &amp; Operating System Supervision</h2>
+            <p class="card-text">
+                Because Project Jarvis is designed with system automation capabilities (including process launching, volume modification, audio controls, and optional email drafting), you acknowledge that all tool invocations are executed on your personal machine under your supervision. You maintain sole responsibility for verifying and approving commands executed by the assistant.
+            </p>
+        </section>
+
+        <section class="terms-card">
+            <div class="card-tag">TERM 05 / GOOGLE API COMPLIANCE</div>
+            <h2 class="card-title">5. Third-Party API Standards</h2>
+            <p class="card-text">
+                When connecting official Google OAuth 2.0 services (such as Gmail), your use of those external capabilities remains subject to Google's standard Terms of Service and API policies. Project Jarvis adheres strictly to the Google API Services User Data Policy, including the Limited Use requirements.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">&copy; 2026 Krishna Jadhav. Open-source under MIT License.</div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="architecture/architecture.html">Architecture</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank">GitHub</a>
+        </div>
+    </footer>
 </body>
 </html>
