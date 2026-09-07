@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Architecture — Jarvis</title>
+    <meta name="description" content="Technical architecture, data pipelines, event loops, VRAM allocation, and local execution lifecycle of Project Jarvis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                darkMode: true,
+                background: '#0a0d14',
+                primaryColor: '#121826',
+                primaryTextColor: '#f0f6fc',
+                primaryBorderColor: 'rgba(0, 240, 255, 0.3)',
+                lineColor: '#00f0ff',
+                secondaryColor: '#0d1320',
+                tertiaryColor: '#070a10',
+                actorBkg: '#0d1320',
+                actorBorder: '#00f0ff',
+                actorTextColor: '#ffffff',
+                signalColor: '#00f0ff',
+                signalTextColor: '#e0f0ff'
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --bg-void: #000000;
+            --bg-surface: rgba(255, 255, 255, 0.03);
+            --bg-surface-hover: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(0, 240, 255, 0.25);
+            --cyan: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.15);
+            --emerald: #00ffaa;
+            --purple: #8a2be2;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            selection-background: var(--cyan);
+            selection-color: #000;
+        }
+
+        ::selection {
+            background: var(--cyan);
+            color: #000;
+        }
+
+        /* Ambient Spotlight Background */
+        .spotlight-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .spotlight {
+            position: absolute;
+            width: 85vw;
+            height: 85vh;
+            top: -25vh;
+            left: 7.5vw;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05), rgba(138, 43, 226, 0.03), transparent 60%);
+            filter: blur(90px);
+            opacity: 0.8;
+            border-radius: 50%;
+            animation: breathe 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes breathe {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 24px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-core {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+            animation: pulse-core 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-core {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.4); opacity: 1; }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            border-bottom: 1px solid var(--cyan);
+            padding-bottom: 2px;
+        }
+
+        /* Header / Hero */
+        .header {
+            position: relative;
+            z-index: 1;
+            padding: 140px 24px 60px;
+            max-width: 1300px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-subtle);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            box-shadow: 0 0 8px var(--emerald);
+        }
+
+        h1 {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            letter-spacing: -2.5px;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .header-desc {
+            font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        /* Content Container */
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto 120px;
+            padding: 0 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+        }
+
+        /* Section Layout */
+        .arch-section {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 32px;
+            padding: 48px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: border-color 0.4s ease;
+        }
+
+        .arch-section:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .section-tag {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .section-desc {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 820px;
+            margin-bottom: 36px;
+            line-height: 1.7;
+        }
+
+        /* Diagram Wrapper */
+        .diagram-card {
+            background: #06090e;
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 32px;
+            overflow-x: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Hardware & VRAM Allocation Visualizer */
+        .vram-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .vram-card {
+            background: #06090e;
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 32px;
+        }
+
+        .vram-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 16px;
+        }
+
+        .vram-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vram-card-badge {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--cyan);
+            background: var(--cyan-dim);
+            padding: 4px 10px;
+            border-radius: 100px;
+        }
+
+        .alloc-item {
+            margin-bottom: 20px;
+        }
+
+        .alloc-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .alloc-name {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .alloc-val {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        .fill-dwm { width: 21%; background: #586579; }
+        .fill-qwen { width: 62.5%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+        .fill-whisper { width: 5%; background: var(--purple); }
+        .fill-headroom { width: 13.6%; background: var(--emerald); }
+
+        .fill-cpu1 { width: 4%; background: var(--cyan); }
+        .fill-cpu2 { width: 30%; background: var(--purple); }
+        .fill-cpu3 { width: 28%; background: var(--emerald); }
+        .fill-cpu4 { width: 18%; background: #f59e0b; }
+
+        /* Feature Pillars Grid */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .pillar-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .pillar-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .pillar-num {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--cyan);
+            margin-bottom: 12px;
+        }
+
+        .pillar-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .pillar-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 60px 48px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-main);
+        }
+
+        @media (max-width: 900px) {
+            .vram-grid { grid-template-columns: 1fr; }
+            .pillars-grid { grid-template-columns: 1fr; }
+            nav { padding: 20px 24px; }
+            .nav-links { display: none; }
+            .header { padding: 120px 24px 40px; }
+            .content { padding: 0 20px; gap: 48px; }
+            .arch-section { padding: 32px 24px; }
+            footer { flex-direction: column; gap: 24px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="spotlight-container">
+        <div class="spotlight"></div>
+    </div>
+
+    <!-- Minimal Fixed Navigation -->
+    <nav>
+        <a href="../index.html" class="logo">
+            <div class="logo-core"></div>
+            <span>JARVIS // ARCHITECTURE</span>
+        </a>
+        <div class="nav-links">
+            <a href="../index.html" class="nav-link">Home</a>
+            <a href="architecture.html" class="nav-link active">Architecture</a>
+            <a href="../privacy.html" class="nav-link">Privacy</a>
+            <a href="../terms.html" class="nav-link">Terms</a>
+            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank" class="nav-link">GitHub</a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>HARDWARE SPEC &bull; RTX 3050A 4GB &bull; SUB-120MS PIPELINE</span>
+        </div>
+        <h1>System Architecture</h1>
+        <p class="header-desc">
+            A comprehensive breakdown of the offline data pipelines, deterministic event routing, dual-layer vector memory, and physical VRAM allocation powering Project Jarvis.
+        </p>
+    </header>
+
+    <main class="content">
+
+        <!-- 1. End-to-End Pipeline -->
+        <section class="arch-section">
+            <div class="section-tag">PIPELINE 01</div>
+            <h2 class="section-title">End-to-End Interaction Loop</h2>
+            <p class="section-desc">
+                The lifecycle of every command—from voice chunk ingestion or global hotkey trigger (<kbd>Ctrl+Shift+J</kbd>) through quantized Whisper STT, vector context augmentation, local LLM tool generation, Windows execution, and Kokoro neural speech output.
+            </p>
+            <div class="diagram-card">
+                <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 👤 User
+    participant HUD as 🖥️ Floating HUD
+    participant VAD as 🎙️ Silero VAD
+    participant STT as 📝 faster-whisper (STT)
+    participant Core as ⚙️ Async Engine
+    participant Mem as 🧠 SQLite + Vector DB
+    participant Brain as 🤖 Qwen 2.5 / 3.5
+    participant Tools as 🛠️ Windows Tool Engine
+    participant TTS as 🔊 Kokoro TTS (CPU)
+
+    alt Voice Input Stream
+        User->>VAD: Speaks "Jarvis, check unread emails and set volume to 50%"
+        VAD->>STT: Stream speech frames (silence cutoff)
+        STT->>Core: Transcribed intent string
+    else Hotkey Text Input
+        User->>HUD: Triggers shortcut & types command
+        HUD->>Core: Dispatches text query
+    end
+
+    Core->>Mem: Pull semantic facts & episodic turns
+    Mem-->>Core: Inject contextual memory
+    Core->>Brain: Augmented prompt + Active Tool Schemas
+    Brain-->>Core: Tool Call: gmail_summary() + set_volume(50)
+    Core->>Tools: Execute OS & API actions
+    Tools-->>Core: Return execution status: Success
+    Core->>Brain: Tool outputs
+    Brain-->>Core: Verbal synthesis: "Emails summarized and volume set, sir."
+
+    par Speech & UI Update
+        Core->>TTS: Synthesize voice stream (ONNX)
+        TTS-->>User: Playback to system audio
+    and HUD Display
+        Core->>HUD: Render markdown bubble & state
+    end
+    Core->>Mem: Persist conversation turn to SQLite
+                </pre>
+            </div>
+        </section>
+
+        <!-- 2. Hybrid Brain & Safety System -->
+        <section class="arch-section">
+            <div class="section-tag">PIPELINE 02</div>
+            <h2 class="section-title">Deterministic Routing &amp; Tool Safety Gate</h2>
+            <p class="section-desc">
+                Fast-path regex routing bypasses LLM latency for system controls. For complex actions, Jarvis generates typed JSON tool calls validated through a strict confirmation gate before operating system modification.
+            </p>
+            <div class="diagram-card">
+                <pre class="mermaid">
+flowchart TD
+    Start([User Input Ingested]) --> Classify{Fast-Path Match?}
+    
+    Classify -->|Volume / Media / Launch App| FastPath[0ms Fast-Path Router]
+    Classify -->|Reasoning / Email / Web / Complex| LocalRoute[Local Brain: Qwen 3.5 4B]
+    
+    FastPath --> ExecTool[Execute Windows Tool Handler]
+    
+    subgraph Local_Inference [Local Inference Engine]
+        LocalRoute --> GenToolCall[Generate JSON Tool Call]
+        GenToolCall --> ValidateSchema{Valid Schema?}
+        ValidateSchema -->|Yes| SafetyGate{Destructive Action?<br/>format, delete, registry}
+        ValidateSchema -->|Malformed| Retry[Self-Correction Loop]
+        Retry --> LocalRoute
+    end
+    
+    SafetyGate -->|Yes| PromptUser[Prompt User Vocal/Click Confirmation]
+    SafetyGate -->|No / Safe| ExecTool
+    PromptUser -->|Confirmed| ExecTool
+    PromptUser -->|Denied| CancelTool[Abort & Return Notice]
+    
+    subgraph Tool_Suite [Windows OS Tool Suite]
+        ExecTool --> T1[App Launcher & Window Focus]
+        ExecTool --> T2[pycaw Volume & Media Keys]
+        ExecTool --> T3[PowerShell Script Sandbox]
+        ExecTool --> T4[Native Gmail OAuth Assistant]
+        ExecTool --> T5[Web Search & Scraper]
+    end
+    
+    Tool_Suite --> ResultSynthesis[Synthesize Final Response]
+    CancelTool --> ResultSynthesis
+    ResultSynthesis --> TTSStream[Kokoro Neural Voice Stream]
+                </pre>
+            </div>
+        </section>
+
+        <!-- 3. Hardware Resource Budget -->
+        <section class="arch-section">
+            <div class="section-tag">HARDWARE PROFILING</div>
+            <h2 class="section-title">Physical Resource &amp; VRAM Allocation</h2>
+            <p class="section-desc">
+                Jarvis is specifically engineered to run sustainably on constrained consumer hardware (e.g. NVIDIA RTX 3050A 4GB VRAM) while maintaining complete system stability and safety headroom.
+            </p>
+
+            <div class="vram-grid">
+                <!-- GPU Card -->
+                <div class="vram-card">
+                    <div class="vram-card-header">
+                        <div class="vram-card-title">
+                            <span>🎮</span> NVIDIA RTX 3050A
+                        </div>
+                        <div class="vram-card-badge">4,096 MB VRAM TOTAL</div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">Qwen 3.5 4B (Ollama / GGUF)</span>
+                            <span class="alloc-val">~2,500 MB (62.5%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-qwen"></div>
+                        </div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">Windows 11 DWM &amp; Display Buffer</span>
+                            <span class="alloc-val">~850 MB (20.8%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-dwm"></div>
+                        </div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">faster-whisper base.en (CUDA int8)</span>
+                            <span class="alloc-val">~200 MB (4.9%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-whisper"></div>
+                        </div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">Free Safety Headroom (Thermal / OS)</span>
+                            <span class="alloc-val">~546 MB (13.3%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-headroom"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CPU Card -->
+                <div class="vram-card">
+                    <div class="vram-card-header">
+                        <div class="vram-card-title">
+                            <span>⚡</span> Host CPU &amp; RAM Offload
+                        </div>
+                        <div class="vram-card-badge">ZERO GPU BOTTLENECK</div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">Kokoro-82M Neural Voice (ONNX CPU)</span>
+                            <span class="alloc-val">~120 MB RAM / &lt;100ms</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-cpu2"></div>
+                        </div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">MiniLM-L6-v2 Embeddings &amp; SQLite</span>
+                            <span class="alloc-val">~110 MB RAM</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-cpu3"></div>
+                        </div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">PyQt6 Frameless Glass HUD &amp; Tray</span>
+                            <span class="alloc-val">~70 MB RAM</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-cpu4"></div>
+                        </div>
+                    </div>
+
+                    <div class="alloc-item">
+                        <div class="alloc-labels">
+                            <span class="alloc-name">Silero VAD (Speech Detection)</span>
+                            <span class="alloc-val">&lt; 1% CPU utilization</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill fill-cpu1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Core Pillars Bento Grid -->
+        <section class="arch-section">
+            <div class="section-tag">SUBSYSTEMS</div>
+            <h2 class="section-title">Architectural Pillars</h2>
+            <p class="section-desc">
+                Six modular subsystems decouple input capture, inference, state management, and operating system execution.
+            </p>
+
+            <div class="pillars-grid">
+                <div class="pillar-card">
+                    <div class="pillar-num">01 / AUDIO</div>
+                    <div class="pillar-title">Sub-100ms Silero VAD</div>
+                    <div class="pillar-desc">
+                        Runs continuously on CPU to segment incoming mic audio into discrete speech packets while filtering ambient keyboard clatter and fan noise.
+                    </div>
+                </div>
+
+                <div class="pillar-card">
+                    <div class="pillar-num">02 / INFERENCE</div>
+                    <div class="pillar-title">Quantized Faster-Whisper</div>
+                    <div class="pillar-desc">
+                        Employs CTranslate2 int8 quantization on CUDA cores to deliver accurate speech-to-text transcriptions with under 150ms processing latency.
+                    </div>
+                </div>
+
+                <div class="pillar-card">
+                    <div class="pillar-num">03 / ROUTING</div>
+                    <div class="pillar-title">Deterministic Intent Bypass</div>
+                    <div class="pillar-desc">
+                        Bypasses LLM token generation entirely for media keys, volume control, and app launching, executing instantly in sub-10ms.
+                    </div>
+                </div>
+
+                <div class="pillar-card">
+                    <div class="pillar-num">04 / MEMORY</div>
+                    <div class="pillar-title">Dual Episodic &amp; Vector Store</div>
+                    <div class="pillar-desc">
+                        A local SQLite database retains historical context while MiniLM vector embeddings dynamically surface user preferences and previous facts.
+                    </div>
+                </div>
+
+                <div class="pillar-card">
+                    <div class="pillar-num">05 / SYNTHESIS</div>
+                    <div class="pillar-title">Kokoro-82M Neural Audio</div>
+                    <div class="pillar-desc">
+                        Synthesizes natural British-English speech via CPU ONNX runtime in streaming audio chunks, supporting instant voice barge-in cancellation.
+                    </div>
+                </div>
+
+                <div class="pillar-card">
+                    <div class="pillar-num">06 / INTERFACE</div>
+                    <div class="pillar-title">Translucent PyQt6 HUD</div>
+                    <div class="pillar-desc">
+                        A borderless, resizable Windows desktop widget with animated Arc Reactor visualizer, tray daemon, and zero focus-stealing behavior.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">&copy; 2026 Krishna Jadhav. Open-source under MIT License.</div>
+        <div class="footer-links">
+            <a href="../index.html">Home</a>
+            <a href="../privacy.html">Privacy</a>
+            <a href="../terms.html">Terms</a>
+            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank">GitHub</a>
+        </div>
+    </footer>
+</body>
+</html>

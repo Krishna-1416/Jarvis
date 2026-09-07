@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service — Project Jarvis</title>
+    <title>Terms of Service — Jarvis</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-void: #02040a;
-            --bg-surface: rgba(10, 14, 23, 0.4);
-            --border-glow: rgba(0, 240, 255, 0.15);
-            --border-subtle: rgba(255, 255, 255, 0.05);
-            --cyan: #00f0ff;
+            --bg-void: #000000;
+            --bg-surface: rgba(255, 255, 255, 0.03);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(255, 255, 255, 0.15);
             --text-main: #ffffff;
-            --text-muted: #8b9bb4;
-            --font-sans: 'Outfit', sans-serif;
+            --text-muted: #888888;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
@@ -27,75 +26,52 @@
             color: var(--text-main);
             font-family: var(--font-sans);
             line-height: 1.7;
-            padding: 80px 24px;
+            padding: 60px 24px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             overflow-x: hidden;
-            selection-background: var(--cyan);
-            selection-color: #000;
-        }
-        
-        ::selection {
-            background: var(--cyan);
-            color: #000;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            selection-background: var(--text-main);
+            selection-color: var(--bg-void);
         }
 
-        /* Animated Background Elements */
-        .bg-container {
+        ::selection { background: var(--text-main); color: var(--bg-void); }
+
+        /* Spotlight Background */
+        .spotlight-container {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 0;
             overflow: hidden;
             pointer-events: none;
+            background: #000000;
         }
 
-        .bg-mesh {
+        .spotlight {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: 60px 60px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
+            width: 80vw;
+            height: 80vh;
+            top: -20vh;
+            left: 10vw;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.04), rgba(138, 43, 226, 0.03), transparent 60%);
             filter: blur(80px);
-            opacity: 0.3;
-            animation: float 20s infinite ease-in-out alternate;
-        }
-        
-        .orb-1 { width: 400px; height: 400px; background: rgba(0, 240, 255, 0.15); top: -100px; left: -100px; }
-        .orb-2 { width: 500px; height: 500px; background: rgba(138, 43, 226, 0.1); bottom: -200px; right: -100px; animation-delay: -5s; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(30px, 50px) scale(1.1); }
-            100% { transform: translate(-20px, 20px) scale(0.9); }
+            opacity: 0.8;
+            border-radius: 50%;
         }
 
         .container {
             position: relative;
             z-index: 1;
-            max-width: 860px;
+            max-width: 800px;
             width: 100%;
-            background: linear-gradient(180deg, rgba(15,20,30,0.4) 0%, rgba(10,14,22,0.6) 100%);
-            border: 1px solid var(--border-subtle);
-            border-radius: 32px;
-            padding: clamp(32px, 6vw, 64px);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
             transform: translateY(20px);
         }
 
-        @keyframes fadeIn {
+        @keyframes revealUp {
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -106,112 +82,98 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
 
         h1 {
-            font-size: clamp(2.5rem, 4vw, 3.5rem);
+            font-size: clamp(3rem, 5vw, 4.5rem);
             font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -1.5px;
-            color: transparent;
-            background: linear-gradient(180deg, #ffffff 0%, #a1b0c8 100%);
-            -webkit-background-clip: text;
+            letter-spacing: -2px;
+            line-height: 1;
+            margin-bottom: 16px;
+            color: var(--text-main);
         }
 
         .updated {
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-bottom: 40px;
-            padding-bottom: 24px;
+            margin-bottom: 56px;
+            padding-bottom: 32px;
             border-bottom: 1px solid var(--border-subtle);
         }
 
         h2 {
-            font-size: 1.4rem;
-            color: #ffffff;
-            margin-top: 48px;
-            margin-bottom: 16px;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-top: 56px;
+            margin-bottom: 24px;
             font-weight: 600;
             letter-spacing: -0.5px;
         }
 
         p, li {
-            color: var(--text-muted);
+            color: #a0a0a0;
             font-size: 1.05rem;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
-        ul {
-            margin-left: 24px;
-            margin-bottom: 24px;
-        }
-
-        li {
-            margin-bottom: 12px;
-        }
+        ul { margin-left: 24px; margin-bottom: 24px; }
+        li { margin-bottom: 12px; }
 
         a {
-            color: var(--cyan);
+            color: var(--text-main);
             text-decoration: none;
-            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px;
             transition: all 0.3s ease;
         }
 
-        a:hover {
-            color: #fff;
-            text-shadow: 0 0 10px var(--cyan);
-        }
+        a:hover { border-color: rgba(255,255,255,1); }
 
         .footer {
-            margin-top: 60px;
-            padding-top: 32px;
+            margin-top: 80px;
+            padding-top: 40px;
             border-top: 1px solid var(--border-subtle);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
             font-size: 0.95rem;
         }
         
         .footer a {
             color: var(--text-muted);
             font-weight: 500;
+            border: none;
         }
         
-        .footer a:hover {
-            color: #fff;
-            text-shadow: none;
-        }
+        .footer a:hover { color: var(--text-main); }
     </style>
 </head>
 <body>
-    <div class="bg-container">
-        <div class="bg-mesh"></div>
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
+    <div class="spotlight-container">
+        <div class="spotlight"></div>
     </div>
 
     <div class="container">
         <div class="badge">Open Source Agreement</div>
         <h1>Terms of Service</h1>
-        <div class="updated">Last revised: September 6, 2026 &bull; Project Jarvis</div>
+        <div class="updated">Last revised: September 7, 2026 &bull; Jarvis</div>
 
         <h2>1. Acceptance of Terms</h2>
-        <p>By downloading, cloning, installing, or executing Project Jarvis ("the application"), you agree to abide by these Terms of Service. If you do not accept these terms, you should discontinue using the software.</p>
+        <p>By downloading, cloning, installing, or executing Jarvis ("the application"), you agree to abide by these Terms of Service. If you do not accept these terms, you should discontinue using the software.</p>
 
         <h2>2. Open Source License (MIT)</h2>
-        <p>Project Jarvis is released under the terms of the <strong>MIT License</strong>. You are granted permission to inspect, modify, merge, publish, distribute, sublicense, and run copies of the software freely in accordance with the MIT License terms.</p>
+        <p>Jarvis is released under the terms of the <strong>MIT License</strong>. You are granted permission to inspect, modify, merge, publish, distribute, sublicense, and run copies of the software freely in accordance with the MIT License terms.</p>
 
         <h2>3. Disclaimer of Warranties</h2>
         <p>The application is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability arising from the use of the software.</p>
 
         <h2>4. User Autonomy &amp; Command Execution</h2>
-        <p>Because Project Jarvis executes operating system commands (such as volume adjustments, process termination, file operations, and optional email drafting) based on voice or keyboard instructions, you acknowledge that you are responsible for monitoring and supervising any system actions executed on your personal computer.</p>
+        <p>Because Jarvis executes operating system commands (such as volume adjustments, process termination, file operations, and optional email drafting) based on voice or keyboard instructions, you acknowledge that you are responsible for monitoring and supervising any system actions executed on your personal computer.</p>
 
         <div class="footer">
-            <a href="index.html">← Back to Overview</a>
+            <a href="index.html">← Overview</a>
+            <a href="architecture/architecture.html">Architecture</a>
             <a href="privacy.html">Privacy Policy →</a>
         </div>
     </div>

@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Jarvis — Local AI Desktop Assistant for Windows</title>
-    <meta name="description" content="A localized, privacy-first, ultra-responsive Windows AI Desktop Assistant inspired by Iron Man's JARVIS. Real-time voice, Arc Reactor HUD, and Gmail integration.">
+    <title>Jarvis — Advanced AI Assistant</title>
+    <meta name="description" content="A localized, privacy-first Windows AI Desktop Assistant inspired by Iron Man's JARVIS.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-void: #02040a;
-            --bg-surface: rgba(10, 14, 23, 0.4);
-            --bg-surface-hover: rgba(20, 28, 43, 0.6);
-            --border-glow: rgba(0, 240, 255, 0.15);
-            --border-subtle: rgba(255, 255, 255, 0.05);
-            --cyan: #00f0ff;
-            --cyan-glow: rgba(0, 240, 255, 0.4);
-            --purple: #8a2be2;
+            --bg-void: #000000;
+            --bg-surface: rgba(255, 255, 255, 0.03);
+            --bg-surface-hover: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(255, 255, 255, 0.15);
+            --accent: #ffffff;
+            --accent-glow: #00f0ff;
             --text-main: #ffffff;
-            --text-muted: #8b9bb4;
-            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --text-muted: #888888;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
 
@@ -36,74 +35,50 @@
             font-family: var(--font-sans);
             overflow-x: hidden;
             min-height: 100vh;
-            selection-background: var(--cyan);
-            selection-color: #000;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            selection-background: var(--text-main);
+            selection-color: var(--bg-void);
         }
 
         ::selection {
-            background: var(--cyan);
-            color: #000;
+            background: var(--text-main);
+            color: var(--bg-void);
         }
 
-        /* Animated Background Elements */
-        .bg-container {
+        /* Spotlight Background */
+        .spotlight-container {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 0;
             overflow: hidden;
             pointer-events: none;
+            background: #000000;
         }
 
-        .bg-mesh {
+        .spotlight {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: 60px 60px;
-            background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
+            width: 80vw;
+            height: 80vh;
+            top: -20vh;
+            left: 10vw;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.07), rgba(138, 43, 226, 0.05), transparent 60%);
             filter: blur(80px);
-            opacity: 0.4;
-            animation: float 20s infinite ease-in-out alternate;
-        }
-        
-        .orb-1 {
-            width: 400px; height: 400px;
-            background: rgba(0, 240, 255, 0.15);
-            top: -100px; left: -100px;
-        }
-        
-        .orb-2 {
-            width: 500px; height: 500px;
-            background: rgba(138, 43, 226, 0.1);
-            bottom: -200px; right: -100px;
-            animation-delay: -5s;
-        }
-        
-        .orb-3 {
-            width: 300px; height: 300px;
-            background: rgba(0, 255, 170, 0.08);
-            top: 40%; left: 60%;
-            animation-delay: -10s;
+            opacity: 0.8;
+            animation: breathe 12s ease-in-out infinite alternate;
+            border-radius: 50%;
         }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(30px, 50px) scale(1.1); }
-            100% { transform: translate(-20px, 20px) scale(0.9); }
+        @keyframes breathe {
+            0% { transform: scale(1) translateY(0); opacity: 0.6; }
+            100% { transform: scale(1.1) translateY(5%); opacity: 0.9; }
         }
 
         /* Fade-in Animation */
-        .fade-in {
-            animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .reveal {
+            animation: revealUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
         }
         
         .delay-1 { animation-delay: 0.1s; }
@@ -111,35 +86,24 @@
         .delay-3 { animation-delay: 0.3s; }
         .delay-4 { animation-delay: 0.4s; }
 
-        @keyframes fadeIn {
+        @keyframes revealUp {
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Navigation */
+        /* Minimal Navigation */
         nav {
             position: fixed;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 48px);
-            max-width: 1200px;
-            background: rgba(10, 14, 23, 0.6);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-subtle);
-            border-radius: 100px;
-            padding: 14px 32px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 24px 48px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 100;
-            box-shadow: 0 4px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        nav:hover {
-            background: rgba(15, 20, 30, 0.7);
-            border-color: var(--border-glow);
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .logo {
@@ -148,400 +112,258 @@
             gap: 12px;
             text-decoration: none;
             color: var(--text-main);
-            font-weight: 700;
-            font-size: 1.15rem;
+            font-weight: 600;
+            font-size: 1.1rem;
             letter-spacing: -0.5px;
         }
 
         .logo-core {
-            width: 14px;
-            height: 14px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: var(--cyan);
-            box-shadow: 0 0 12px var(--cyan);
-            animation: pulse-core 3s infinite ease-in-out;
+            background: var(--text-main);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            animation: pulse-core 4s infinite ease-in-out;
         }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 32px;
+            gap: 40px;
         }
 
         .nav-link {
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 100%; height: 2px;
-            bottom: -6px; left: 0;
-            background: var(--cyan);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.4s ease;
         }
 
         .nav-link:hover {
             color: var(--text-main);
         }
-        
-        .nav-link:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
 
-        .btn-gh {
-            background: #ffffff;
-            color: #000000;
-            padding: 10px 24px;
-            border-radius: 100px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-gh:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(255,255,255,0.15);
-        }
-
-        /* Hero Section */
+        /* Hero Section - Pro Max */
         .hero {
             position: relative;
             z-index: 1;
-            padding: 180px 24px 100px;
-            max-width: 1200px;
+            padding: 100px 24px 60px;
+            max-width: 1400px;
             margin: 0 auto;
             text-align: center;
-        }
-
-        .pill-badge {
-            display: inline-flex;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
-            padding: 8px 20px;
-            border-radius: 100px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 32px;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s ease;
-        }
-        
-        .pill-badge:hover {
-            border-color: rgba(255,255,255,0.1);
-            color: var(--text-main);
         }
 
-        .pill-dot {
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
             background: #00ffaa;
-            box-shadow: 0 0 10px #00ffaa;
+            box-shadow: 0 0 8px #00ffaa;
         }
 
         h1 {
-            font-size: clamp(3rem, 7vw, 5.5rem);
-            font-weight: 800;
-            letter-spacing: -2.5px;
-            line-height: 1.05;
+            font-size: clamp(3.5rem, 8vw, 7.5rem);
+            font-weight: 700;
+            letter-spacing: -3px;
+            line-height: 1;
             margin-bottom: 24px;
-            color: transparent;
-            background: linear-gradient(180deg, #ffffff 0%, #a1b0c8 100%);
-            -webkit-background-clip: text;
+            color: var(--text-main);
+            max-width: 900px;
         }
 
         .hero-desc {
-            font-size: clamp(1.1rem, 2vw, 1.35rem);
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
             color: var(--text-muted);
-            max-width: 680px;
-            margin: 0 auto 48px;
-            line-height: 1.6;
+            max-width: 600px;
+            line-height: 1.5;
             font-weight: 400;
+            margin-bottom: 40px;
         }
 
-        .hero-ctas {
+        .btn-group {
             display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 80px;
+            padding: 16px 40px;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .btn-primary {
             background: var(--text-main);
-            color: #000;
-            font-weight: 600;
-            padding: 16px 36px;
-            border-radius: 100px;
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1rem;
+            color: var(--bg-void);
+            box-shadow: 0 0 0 rgba(255,255,255,0);
         }
 
         .btn-primary:hover {
-            transform: scale(1.03);
-            box-shadow: 0 20px 40px rgba(255,255,255,0.15);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
         }
 
-        .btn-glass {
-            background: rgba(255, 255, 255, 0.03);
+        .btn-secondary {
+            background: transparent;
             color: var(--text-main);
             border: 1px solid var(--border-subtle);
-            font-weight: 500;
-            padding: 16px 36px;
-            border-radius: 100px;
-            text-decoration: none;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            font-size: 1rem;
+            backdrop-filter: blur(10px);
         }
 
-        .btn-glass:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.03);
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.2);
+            transform: scale(1.02);
         }
 
-        /* Ultra Premium HUD Preview */
-        .hud-preview {
+        /* Abstract UI Visualizer */
+        .visualizer {
+            margin-top: 100px;
+            width: 100%;
+            max-width: 1000px;
+            height: 400px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-bottom: none;
+            border-top-left-radius: 40px;
+            border-top-right-radius: 40px;
             position: relative;
-            max-width: 900px;
-            margin: 0 auto;
-            background: linear-gradient(145deg, rgba(15, 20, 30, 0.6) 0%, rgba(5, 8, 12, 0.8) 100%);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 32px;
-            padding: 40px;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
         }
-        
-        .hud-preview::before {
+
+        .visualizer::before {
             content: '';
             position: absolute;
-            top: 0; left: 20%; right: 20%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.5), transparent);
-            opacity: 0.5;
+            top: 0; left: 10%; right: 10%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         }
 
-        .hud-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 32px;
-        }
-
-        .hud-title {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .hud-badge {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            color: var(--cyan);
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 100px;
-            font-family: var(--font-mono);
-            letter-spacing: 0.5px;
-            animation: pulse-border 2s infinite alternate;
-        }
-
-        @keyframes pulse-border {
-            from { border-color: rgba(0, 240, 255, 0.2); box-shadow: 0 0 0 rgba(0,240,255,0); }
-            to { border-color: rgba(0, 240, 255, 0.6); box-shadow: 0 0 15px rgba(0,240,255,0.2); }
-        }
-
-        .reactor-wrap {
-            display: flex;
-            justify-content: center;
-            margin: 30px 0 40px;
-        }
-
-        .reactor-circle {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-top-color: var(--cyan);
-            border-right-color: var(--cyan);
+        .ring-container {
             position: relative;
+            width: 300px;
+            height: 300px;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: spin 8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
         }
 
-        .reactor-inner {
-            width: 50px;
-            height: 50px;
+        .ring {
+            position: absolute;
             border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 0 30px var(--cyan), 0 0 60px var(--cyan);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ring-1 { width: 100px; height: 100px; animation: spin-slow 10s linear infinite; border-top-color: var(--accent-glow); }
+        .ring-2 { width: 180px; height: 180px; animation: spin-slow 20s linear infinite reverse; border-right-color: var(--accent-glow); }
+        .ring-3 { width: 260px; height: 260px; animation: spin-slow 30s linear infinite; border-bottom-color: var(--text-muted); }
+
+        .core {
+            width: 8px;
+            height: 8px;
+            background: var(--text-main);
+            border-radius: 50%;
+            box-shadow: 0 0 20px 4px var(--accent-glow);
             animation: pulse-core 2s ease-in-out infinite alternate;
         }
 
-        .chat-stream {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .bubble {
-            padding: 16px 24px;
-            border-radius: 20px;
-            font-size: 1rem;
-            line-height: 1.6;
-            max-width: 85%;
-            font-weight: 400;
+        @keyframes pulse-core {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.5); opacity: 1; }
         }
 
-        .bubble-user {
-            align-self: flex-end;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            border-bottom-right-radius: 4px;
-        }
-
-        .bubble-jarvis {
-            align-self: flex-start;
-            background: rgba(0, 240, 255, 0.05);
-            border: 1px solid rgba(0, 240, 255, 0.15);
-            color: #e0e8f5;
-            border-bottom-left-radius: 4px;
-        }
-
-        .bubble-jarvis strong {
-            color: var(--cyan);
-            font-weight: 600;
-        }
-
-        /* Premium Bento Grid Features */
+        /* Features Grid - Pro Max */
         .features {
             position: relative;
             z-index: 1;
-            max-width: 1200px;
-            margin: 120px auto;
-            padding: 0 24px;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 64px;
-        }
-
-        .section-tag {
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: clamp(2.5rem, 4vw, 3.5rem);
-            font-weight: 700;
-            letter-spacing: -1.5px;
-            color: transparent;
-            background: linear-gradient(180deg, #ffffff 0%, #a1b0c8 100%);
-            -webkit-background-clip: text;
+            max-width: 1400px;
+            margin: 0 auto 120px;
+            padding: 0 48px;
         }
 
         .bento-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(12, 1fr);
             gap: 24px;
         }
 
         .card {
-            background: linear-gradient(180deg, rgba(15,20,30,0.4) 0%, rgba(10,14,22,0.6) 100%);
+            background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
-            border-radius: 28px;
-            padding: 40px 32px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
+            border-radius: 32px;
+            padding: 48px;
             display: flex;
             flex-direction: column;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-        }
-        
-        .card.wide {
-            grid-column: span 2;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
         .card:hover {
-            border-color: rgba(255,255,255,0.15);
-            background: linear-gradient(180deg, rgba(20,26,40,0.6) 0%, rgba(12,16,26,0.8) 100%);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            background: var(--bg-surface-hover);
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
         }
 
+        .col-4 { grid-column: span 4; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+
         .card-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-size: 1.5rem;
-            margin-bottom: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover .card-icon {
-            background: rgba(0, 240, 255, 0.1);
-            border-color: rgba(0, 240, 255, 0.3);
-            color: var(--cyan);
-            transform: scale(1.1);
+            color: var(--text-main);
+            margin-bottom: 32px;
         }
 
         .card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 12px;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 500;
             letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            color: var(--text-main);
         }
 
         .card p {
+            font-size: 1.05rem;
             color: var(--text-muted);
             line-height: 1.6;
-            font-size: 1rem;
+            font-weight: 400;
             margin-top: auto;
         }
 
@@ -549,20 +371,17 @@
         footer {
             position: relative;
             z-index: 1;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding: 80px 24px 60px;
-            margin-top: 120px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+            padding: 60px 48px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .footer-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 32px;
+        .footer-logo {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
         }
 
         .footer-links {
@@ -573,8 +392,7 @@
         .footer-links a {
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-size: 0.85rem;
             transition: color 0.3s ease;
         }
 
@@ -582,162 +400,112 @@
             color: var(--text-main);
         }
 
-        .copyright {
-            color: #586579;
-            font-size: 0.9rem;
-        }
-
-        @keyframes pulse-core {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 900px) {
-            .bento-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .card.wide {
-                grid-column: span 2;
-            }
+        @media (max-width: 1024px) {
+            .col-4, .col-8, .col-6 { grid-column: span 12; }
+            h1 { font-size: 4rem; }
         }
 
         @media (max-width: 768px) {
-            nav { padding: 12px 24px; }
-            .nav-link { display: none; }
-            .hud-preview { padding: 24px; }
-            .bento-grid { grid-template-columns: 1fr; }
-            .card.wide { grid-column: span 1; }
-            h1 { font-size: 2.5rem; }
+            nav { padding: 20px 24px; }
+            .nav-links { display: none; }
+            .hero { padding: 90px 24px 60px; }
+            h1 { font-size: 3rem; letter-spacing: -1.5px; }
+            .btn-group { flex-direction: column; width: 100%; }
+            .btn { width: 100%; }
+            .features { padding: 0 24px; }
+            .card { padding: 32px; }
+            footer { flex-direction: column; gap: 24px; text-align: center; }
         }
     </style>
 </head>
 <body>
-    <div class="bg-container">
-        <div class="bg-mesh"></div>
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+    <div class="spotlight-container">
+        <div class="spotlight"></div>
     </div>
 
-    <!-- Floating Navbar -->
-    <nav class="fade-in">
+    <nav class="reveal">
         <a href="index.html" class="logo">
             <div class="logo-core"></div>
-            <span>JARVIS // OS</span>
+            <span>JARVIS</span>
         </a>
         <div class="nav-links">
-            <a href="#features" class="nav-link">Capabilities</a>
+            <a href="#features" class="nav-link">Features</a>
             <a href="architecture/architecture.html" class="nav-link">Architecture</a>
             <a href="privacy.html" class="nav-link">Privacy</a>
-            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank" class="btn-gh">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                GitHub
-            </a>
+            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank" class="nav-link">GitHub</a>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero fade-in delay-1">
-        <div class="pill-badge">
-            <div class="pill-dot"></div>
-            <span>v1.0 Windows Native &amp; Offline Ready</span>
+    <section class="hero">
+        <div class="status-badge reveal delay-1">
+            <div class="status-dot"></div>
+            <span>V1.0 • SYSTEM ONLINE</span>
         </div>
-        <h1>Your Local AI Assistant.<br>Built with Iron Man Precision.</h1>
-        <p class="hero-desc">
-            Project Jarvis is an ultra-low latency, localized Windows AI companion featuring real-time speech recognition, Arc Reactor HUD visualization, and privacy-first local reasoning.
+        
+        <h1 class="reveal delay-2">Intelligence, localized.</h1>
+        <p class="hero-desc reveal delay-3">
+            An ultra-low latency, localized Windows AI companion. Real-time speech recognition, native integrations, and absolute privacy.
         </p>
-        <div class="hero-ctas">
-            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank" class="btn-primary">
-                Get Started on GitHub
+        
+        <div class="btn-group reveal delay-4">
+            <a href="https://github.com/Krishna-1416/Jarvis" target="_blank" class="btn btn-primary">
+                View Source
             </a>
-            <a href="privacy.html" class="btn-glass">
-                Review Privacy Policy
+            <a href="privacy.html" class="btn btn-secondary">
+                Read Policy
             </a>
         </div>
 
-        <!-- Glass HUD Mockup -->
-        <div class="hud-preview fade-in delay-2">
-            <div class="hud-header">
-                <div class="hud-title">
-                    <span>⚡</span> JARVIS // OS CORE
-                </div>
-                <div class="hud-badge">🎙️ LISTENING</div>
-            </div>
-
-            <div class="reactor-wrap">
-                <div class="reactor-circle">
-                    <div class="reactor-inner"></div>
-                </div>
-            </div>
-
-            <div class="chat-stream">
-                <div class="bubble bubble-user">
-                    "Jarvis, check my unread emails and summarize my day."
-                </div>
-                <div class="bubble bubble-jarvis">
-                    <strong>Jarvis:</strong> Standing by, sir. You have 3 priority emails in your inbox — including a new update from LinkedIn and an interview invitation. Screen brightness has been adjusted to 80%.
-                </div>
+        <div class="visualizer reveal delay-4">
+            <div class="ring-container">
+                <div class="ring ring-1"></div>
+                <div class="ring ring-2"></div>
+                <div class="ring ring-3"></div>
+                <div class="core"></div>
             </div>
         </div>
     </section>
 
-    <!-- Bento Grid Features -->
     <section class="features" id="features">
-        <div class="section-header fade-in delay-3">
-            <div class="section-tag">ENGINE ARCHITECTURE</div>
-            <h2 class="section-title">Engineered for Privacy</h2>
-        </div>
-
         <div class="bento-grid">
-            <div class="card wide fade-in delay-4">
+            <div class="card col-8 reveal">
                 <div class="card-icon">🧠</div>
                 <h3>100% Local Inference</h3>
-                <p>Powered by local Ollama models (Qwen 2.5 / 3.5). Runs entirely on your hardware with zero data leaving your machine, ensuring absolute privacy for your queries and workflows.</p>
+                <p>Powered by local Ollama models. Runs entirely on your hardware with zero data leaving your machine, ensuring absolute privacy for your queries and workflows.</p>
             </div>
-
-            <div class="card fade-in delay-4">
+            
+            <div class="card col-4 reveal delay-1">
                 <div class="card-icon">⚡</div>
-                <h3>0ms Fast-Path Router</h3>
-                <p>Deterministic regex intent parsing bypasses LLM latency for media controls, system audio, volume, and app launches.</p>
+                <h3>0ms Fast-Path</h3>
+                <p>Deterministic regex intent parsing bypasses LLM latency for media controls and app launches.</p>
             </div>
 
-            <div class="card fade-in delay-4">
+            <div class="card col-4 reveal delay-2">
                 <div class="card-icon">🎙️</div>
                 <h3>Noise-Immune STT</h3>
                 <p>Silero Voice Activity Detection combined with quantized Faster-Whisper delivers real-time voice capture.</p>
             </div>
-            
-            <div class="card wide fade-in delay-4">
+
+            <div class="card col-4 reveal delay-3">
                 <div class="card-icon">📬</div>
-                <h3>Native Gmail Assistant</h3>
-                <p>Official Google OAuth2 integration scans, categorizes, and summarizes unread emails directly into your executive briefing. Requires zero third-party cloud intermediaries.</p>
+                <h3>Native Gmail</h3>
+                <p>Official Google OAuth2 integration scans, categorizes, and summarizes unread emails directly.</p>
             </div>
 
-            <div class="card fade-in delay-4">
+            <div class="card col-4 reveal delay-4">
                 <div class="card-icon">💎</div>
-                <h3>Cyberpunk Glass HUD</h3>
+                <h3>Cyberpunk HUD</h3>
                 <p>Interactive PyQt6 frameless translucent HUD featuring responsive border resizing and tray daemon.</p>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
-        <div class="footer-inner">
-            <div class="copyright">
-                &copy; 2026 Krishna Jadhav. Built with open-source technologies under the MIT License.
-            </div>
-            <div class="footer-links">
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="terms.html">Terms of Service</a>
-                <a href="architecture/architecture.html">Architecture</a>
-                <a href="https://github.com/Krishna-1416/Jarvis" target="_blank">GitHub</a>
-            </div>
+        <div class="footer-logo">© 2026 Krishna Jadhav. MIT License.</div>
+        <div class="footer-links">
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a href="architecture/architecture.html">Architecture</a>
         </div>
     </footer>
 </body>
